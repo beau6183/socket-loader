@@ -9,6 +9,7 @@ program
   .usage('[options] <url>')
   .option('-s, --server <server>', 'Socket server url')
   .option('-t, --threads <n>', 'Number of threads to use (total = clients * threads), default number of cores', parseInt)
+  .option('-p, --print <attribute>', 'name of a response message attribute to print')
   .option('-c, --clients <n>', 'Number of clients to spin up, default 10', _ => {
     console.log({_});
     return parseInt(_);
@@ -25,7 +26,13 @@ function runIt(n) {
   client.responses = 0;
   client.on(program.url, (m) => {
     client.responses++;
-    console.log(`Client ${client.clientNumber} response recieved, count ${client.responses}`)
+    
+    if (program.print) {
+      const message = JSON.parse(m);
+      console.log(`Client ${client.clientNumber} response. Pod: ${message[program.print]}`);
+    }
+    else
+      console.log(`Client ${client.clientNumber} response count ${client.responses}`);
   });
   client.emit('subscribe', {url:program.url,interval:2000});
 }
